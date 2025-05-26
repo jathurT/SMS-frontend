@@ -126,6 +126,13 @@ const columnHeadersSchedule = [
   "Available Slots",
   "Created At",
 ];
+
+// Add the missing Department column headers
+const columnHeadersDepartment = [
+  "Department ID",
+  "Department Name",
+];
+
 export {
   navLinks,
   columnHeadersBooking,
@@ -133,4 +140,5 @@ export {
   columnHeadersSchedule,
   columnHeadersReceptionist,
   columnHeadersPatient,
-};
+  columnHeadersDepartment, 
+}
