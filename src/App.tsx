@@ -1,7 +1,20 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Layout from "./Layout";
 export default function App() {
   return (
-    <h1 className="text-3xl font-bold underline text-blue-500">
-      Hello world!
-    </h1>
+    <Router>
+      <Routes>
+        <Route path="/"
+          element={
+            <Layout />
+          }>
+          <Route index element={<Dashboard />} />
+
+        </Route>
+
+
+      </Routes>
+    </Router>
   )
 }
