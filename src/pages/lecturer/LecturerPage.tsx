@@ -1,33 +1,33 @@
-import { useDepartmentContext } from "@/contexts/departmentContext";
+import { useLecturerContext } from "@/contexts/lecturerContext";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import DepartmentForm from "@/components/forms/department-form";
-import DepartmentAnalytics from "./department-analytics";
+import LecturerForm from "@/components/forms/lecturer-form";
+import LecturerAnalytics from "./lecturer-analytics";
 import { useState } from "react";
 import Lorder from "@/components/Lorder";
 import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw } from "lucide-react";
 
-export default function DepartmentPage() {
-  const { state, fetchDepartments } = useDepartmentContext();
+export default function LecturerPage() {
+  const { state, fetchLecturers } = useLecturerContext();
   const [isOpen, setIsOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await fetchDepartments();
+      await fetchLecturers();
     } catch (error) {
-      console.error("Failed to refresh departments", error);
+      console.error("Failed to refresh lecturers", error);
     } finally {
       setIsRefreshing(false);
     }
   };
 
   // Only show loading spinner on initial load
-  if (state.loading && state.departments.length === 0) {
+  if (state.loading && state.lecturers.length === 0) {
     return (
       <div className="flex w-full h-screen justify-center items-center">
         <Lorder />
@@ -37,9 +37,9 @@ export default function DepartmentPage() {
 
   // Show error only for critical errors (not "no data found" type errors)
   const isCriticalError = state.error && 
-    !state.error.toLowerCase().includes('no departments found') &&
+    !state.error.toLowerCase().includes('no lecturers found') &&
     !state.error.toLowerCase().includes('not found') &&
-    state.departments.length === 0;
+    state.lecturers.length === 0;
 
   if (isCriticalError) {
     return (
@@ -57,32 +57,32 @@ export default function DepartmentPage() {
 
   return (
     <div className="flex flex-col">
-      {/* Add Department Dialog */}
+      {/* Add Lecturer Dialog */}
       <ResponsiveDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        title="Add Department"
+        title="Add Lecturer"
         className="sm:max-w-screen-md p-20"
       >
-        <DepartmentForm setIsOpen={setIsOpen} />
+        <LecturerForm setIsOpen={setIsOpen} />
       </ResponsiveDialog>
 
       <div className="pb-5 px-2 lg:px-0">
           <Tabs defaultValue="list">
           <TabsList className="">
             <TabsTrigger value="list">
-              Department List ({state.departments.length})
+              Lecturer List ({state.lecturers.length})
             </TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
           <TabsContent value="list">
             <DataTable 
               columns={columns} 
-              data={state.departments || []}  
+              data={state.lecturers || []}  
             />
           </TabsContent>
           <TabsContent value="analytics">
-            <DepartmentAnalytics />
+            <LecturerAnalytics />
           </TabsContent>
         </Tabs>
       </div>

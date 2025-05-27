@@ -66,11 +66,11 @@ function DepartmentForm({ setIsOpen }: DepartmentFormProps) {
       // Reset form and close dialog
       setFormData({ departmentName: "" });
       setIsOpen(false);
-    } catch (error: any) {
-      console.error("Error creating department:", error);
+    } catch (err: any) {
+      console.error("Error creating department:", err);
       error({
         title: "Creation Failed",
-        description: error.response?.data?.message || state.error || "Failed to create department",
+        description: err.response?.data?.message || state.error || "Failed to create department",
         duration: 6000
       });
     } finally {
@@ -111,12 +111,6 @@ function DepartmentForm({ setIsOpen }: DepartmentFormProps) {
           </p>
         </div>
       </div>
-
-      {state.error && (
-        <div className="text-red-500 text-sm">
-          {state.error}
-        </div>
-      )}
 
       <div className="flex justify-end space-x-2 pt-4">
         <Button

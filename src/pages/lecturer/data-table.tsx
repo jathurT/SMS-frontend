@@ -28,18 +28,25 @@ import PaginationArea from "./data-table-pagination-area";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { DataTableHeader } from "./data-table-header";
 
+interface LecturerData {
+  lecturerId: number;
+  // Add other properties as needed
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  // Add optional prop to control clickable behavior
+  enableRowClick?: boolean;
+  // Optional prop to customize the route path
+  detailsRoutePath?: string;
 }
 
-interface WithDepartmentId {
-  departmentId: number;
-}
-
-export function DataTable<TData extends WithDepartmentId, TValue>({
+export function DataTable<TData extends LecturerData, TValue>({
   columns,
   data,
+  enableRowClick = true,
+  detailsRoutePath = "/lecturer",
 }: DataTableProps<TData, TValue>) {
   const navigate = useNavigate();
   const [rowSelection, setRowSelection] = React.useState({});
@@ -72,43 +79,32 @@ export function DataTable<TData extends WithDepartmentId, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  const handleRowClick = (row: TData, event: React.MouseEvent) => {
-    // Prevent navigation if clicking on interactive elements
-    const target = event.target as HTMLElement;
-    const interactiveElements = [
-      'button',
-      'a', 
-      '[role="button"]',
-      '[data-actions-cell]',
-      '.dropdown-trigger',
-      '[data-radix-collection-item]'
-    ];
+  const handleRowClick = (lecturerId: number, event: React.MouseEvent) => {
+    if (!enableRowClick) return;
     
-    // Check if the clicked element or any of its parents is interactive
-    for (const selector of interactiveElements) {
-      if (target.closest(selector)) {
-        return;
-      }
+    // Prevent row click if user clicked on interactive elements
+    const target = event.target as HTMLElement;
+    const isInteractiveElement = target.closest(
+      'button, [role="button"], [data-action-button], input, [type="checkbox"], a, select, textarea'
+    );
+    
+    if (!isInteractiveElement) {
+      navigate(`${detailsRoutePath}/${lecturerId}`);
     }
-
-    navigate(`/department/${row.departmentId}`);
   };
 
   return (
-    <div className="space-y-4 flex w-full flex-col">
+    <div className="space-y-4 flex w-full flex-col ">
       <DataTableHeader table={table} />
       <DataTableToolbar table={table} />
-      <div className="overflow-y-auto rounded-md border border-border">
+      <div className="overflow-y-auto rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow 
-                key={headerGroup.id}
-                className="border-b border-border hover:bg-muted/50"
-              >
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
-                    className="px-4 py-2 text-muted-foreground font-medium"
+                    className="px-4 py-2"
                     key={header.id}
                     colSpan={header.colSpan}
                   >
@@ -129,15 +125,11 @@ export function DataTable<TData extends WithDepartmentId, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-muted/50 transition-colors border-b border-border data-[state=selected]:bg-muted"
-                  onClick={(e) => handleRowClick(row.original, e)}
+                  onClick={(e) => handleRowClick(row.original.lecturerId, e)}
+                  className={enableRowClick ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell 
-                      className="px-4 py-2 text-foreground" 
-                      key={cell.id}
-                      {...(cell.column.id === 'actions' ? { 'data-actions-cell': 'true' } : {})}
-                    >
+                    <TableCell className="px-4 py-2" key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -150,7 +142,7 @@ export function DataTable<TData extends WithDepartmentId, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center text-muted-foreground"
+                  className="h-24 text-center"
                 >
                   No results.
                 </TableCell>

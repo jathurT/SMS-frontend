@@ -48,8 +48,8 @@ function DepartmentEditForm({
             departmentName: department.departmentName,
           });
         }
-      } catch (error) {
-        console.error("Error loading department:", error);
+      } catch (err) {
+        console.error("Error loading department:", err);
         error({
           title: "Loading Failed",
           description: "Failed to load department data",
@@ -107,11 +107,11 @@ function DepartmentEditForm({
       });
 
       setIsOpen(false);
-    } catch (error: any) {
-      console.error("Error updating department:", error);
+    } catch (err: any) {
+      console.error("Error updating department:", err);
       error({
         title: "Update Failed",
-        description: error.response?.data?.message || state.error || "Failed to update department",
+        description: err.response?.data?.message || state.error || "Failed to update department",
         duration: 6000
       });
     } finally {
@@ -161,13 +161,6 @@ function DepartmentEditForm({
           </p>
         </div>
       </div>
-
-      {state.error && (
-        <div className="text-red-500 text-sm">
-          {state.error}
-        </div>
-      )}
-
       <div className="flex justify-end space-x-2 pt-4">
         <Button
           type="button"

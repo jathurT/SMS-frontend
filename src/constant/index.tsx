@@ -127,10 +127,20 @@ const columnHeadersSchedule = [
   "Created At",
 ];
 
-// Add the missing Department column headers
 const columnHeadersDepartment = [
   "Department ID",
   "Department Name",
+];
+
+const columnHeadersLecturer = [
+  "Lecturer ID",
+  "First Name",
+  "Last Name",
+  "Email",
+  "Phone Number",
+  "Department Name",
+  "Address",
+  "Date of Birth",
 ];
 
 export {
@@ -141,4 +151,5 @@ export {
   columnHeadersReceptionist,
   columnHeadersPatient,
   columnHeadersDepartment, 
+  columnHeadersLecturer,
 }
