@@ -143,6 +143,16 @@ const columnHeadersLecturer = [
   "Date of Birth",
 ];
 
+const columnHeadersStudent = [
+  "Student ID",
+  "First Name",
+  "Last Name",
+  "Email",
+  "Phone Number",
+  "Address",
+  "Date of Birth",
+];
+
 export {
   navLinks,
   columnHeadersBooking,
@@ -152,4 +162,5 @@ export {
   columnHeadersPatient,
   columnHeadersDepartment, 
   columnHeadersLecturer,
+  columnHeadersStudent,
 }

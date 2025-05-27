@@ -107,11 +107,22 @@ function DepartmentEditForm({
       });
 
       setIsOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error updating department:", err);
+      const errorMessage = err instanceof Error && 'response' in err && 
+        typeof err.response === 'object' && 
+        err.response !== null && 
+        'data' in err.response && 
+        typeof err.response.data === 'object' && 
+        err.response.data !== null && 
+        'message' in err.response.data && 
+        typeof err.response.data.message === 'string'
+        ? err.response.data.message
+        : state.error || "Failed to update department";
+      
       error({
         title: "Update Failed",
-        description: err.response?.data?.message || state.error || "Failed to update department",
+        description: errorMessage,
         duration: 6000
       });
     } finally {

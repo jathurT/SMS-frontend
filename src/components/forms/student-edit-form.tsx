@@ -2,33 +2,30 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useLecturerContext } from "@/contexts/lecturerContext";
-import { useDepartmentContext } from "@/contexts/departmentContext";
-import { CreateLecturer } from "@/types/lecturer";
+import { useStudentContext } from "@/contexts/studentContext";
+import { CreateStudent } from "@/types/student";
 import { Loader2 } from "lucide-react";
 
-interface LecturerEditFormProps {
-  lecturerId: number;
+interface StudentEditFormProps {
+  studentId: number;
   setIsOpen: (open: boolean) => void;
 }
 
 type FormErrors = {
-  [K in keyof CreateLecturer]?: string;
+  [K in keyof CreateStudent]?: string;
 };
 
-function LecturerEditForm({ 
-  lecturerId, 
+function StudentEditForm({ 
+  studentId, 
   setIsOpen 
-}: LecturerEditFormProps) {
+}: StudentEditFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<CreateLecturer>({
+  const [formData, setFormData] = useState<CreateStudent>({
     firstName: "",
     lastName: "",
     email: "",
     phoneNumber: "",
-    departmentId: 0,
     address: "",
     dateOfBirth: new Date(),
   });
@@ -36,48 +33,45 @@ function LecturerEditForm({
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   const { success, error, info } = useToast();
-  const { state, updateLecturer, fetchLecturerById } = useLecturerContext();
-  const { state: departmentState } = useDepartmentContext();
+  const { state, updateStudent, fetchStudentById } = useStudentContext();
 
-  // Load existing lecturer data
+  // Load existing student data
   useEffect(() => {
-    const loadLecturer = async () => {
+    const loadStudent = async () => {
       try {
         setIsLoadingData(true);
         
-        // First check if lecturer exists in current state
-        const existingLecturer = state.lecturers.find(
-          lecturer => lecturer.lecturerId === lecturerId
+        // First check if student exists in current state
+        const existingStudent = state.students.find(
+          student => student.studentId === studentId
         );
         
-        if (existingLecturer) {
+        if (existingStudent) {
           setFormData({
-            firstName: existingLecturer.firstName,
-            lastName: existingLecturer.lastName,
-            email: existingLecturer.email,
-            phoneNumber: existingLecturer.phoneNumber || "",
-            departmentId: existingLecturer.departmentId,
-            address: existingLecturer.address || "",
-            dateOfBirth: existingLecturer.dateOfBirth,
+            firstName: existingStudent.firstName,
+            lastName: existingStudent.lastName,
+            email: existingStudent.email,
+            phoneNumber: existingStudent.phoneNumber || "",
+            address: existingStudent.address || "",
+            dateOfBirth: existingStudent.dateOfBirth,
           });
         } else {
           // Fetch from API if not in current state
-          const lecturer = await fetchLecturerById(lecturerId);
+          const student = await fetchStudentById(studentId);
           setFormData({
-            firstName: lecturer.firstName,
-            lastName: lecturer.lastName,
-            email: lecturer.email,
-            phoneNumber: lecturer.phoneNumber || "",
-            departmentId: lecturer.departmentId,
-            address: lecturer.address || "",
-            dateOfBirth: lecturer.dateOfBirth,
+            firstName: student.firstName,
+            lastName: student.lastName,
+            email: student.email,
+            phoneNumber: student.phoneNumber || "",
+            address: student.address || "",
+            dateOfBirth: student.dateOfBirth,
           });
         }
       } catch (err) {
-        console.error("Error loading lecturer:", err);
+        console.error("Error loading student:", err);
         error({
           title: "Loading Failed",
-          description: "Failed to load lecturer data",
+          description: "Failed to load student data",
           duration: 5000
         });
         setIsOpen(false);
@@ -86,8 +80,8 @@ function LecturerEditForm({
       }
     };
 
-    loadLecturer();
-  }, [lecturerId, state.lecturers, fetchLecturerById, setIsOpen, error]);
+    loadStudent();
+  }, [studentId, state.students, fetchStudentById, setIsOpen, error]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -118,12 +112,23 @@ function LecturerEditForm({
       newErrors.phoneNumber = "Please enter a valid phone number";
     }
 
-    if (!formData.departmentId || formData.departmentId <= 0) {
-      newErrors.departmentId = "Department is required";
-    }
-
     if (formData.address && formData.address.trim().length > 200) {
       newErrors.address = "Address must be less than 200 characters";
+    }
+
+    // Add validation for date of birth
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = "Date of birth is required";
+    } else {
+      const today = new Date();
+      const minAge = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+      const maxAge = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+      
+      if (formData.dateOfBirth > minAge) {
+        newErrors.dateOfBirth = "Must be at least 16 years old";
+      } else if (formData.dateOfBirth < maxAge) {
+        newErrors.dateOfBirth = "Please enter a valid date of birth";
+      }
     }
 
     setErrors(newErrors);
@@ -142,33 +147,37 @@ function LecturerEditForm({
     // Show processing toast
     info({
       title: "Processing...",
-      description: "Updating lecturer information",
+      description: "Updating student information",
       duration: 2000
     });
 
     try {
-      await updateLecturer(lecturerId, {
+      await updateStudent(studentId, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
-        phoneNumber: formData.phoneNumber?.trim() || undefined,
-        departmentId: formData.departmentId,
-        address: formData.address?.trim() || undefined,
+        phoneNumber: formData.phoneNumber?.trim() || "",
+        address: formData.address?.trim() || "",
         dateOfBirth: formData.dateOfBirth,
       });
 
       success({
         title: "Updated Successfully!",
-        description: "Lecturer information has been updated",
+        description: "Student information has been updated",
         duration: 4000
       });
 
       setIsOpen(false);
     } catch (err: unknown) {
-      console.error("Error updating lecturer:", err);
+      console.error("Error updating student:", err);
+      const errorMessage = err && typeof err === 'object' && 'response' in err && 
+        err.response && typeof err.response === 'object' && 'data' in err.response &&
+        err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data &&
+        typeof err.response.data.message === 'string' ? err.response.data.message : undefined;
+      
       error({
         title: "Update Failed",
-        description: (err as { response?: { data?: { message?: string } } }).response?.data?.message || state.error || "Failed to update lecturer",
+        description: errorMessage || state.error || "Failed to update student",
         duration: 6000
       });
     } finally {
@@ -176,7 +185,7 @@ function LecturerEditForm({
     }
   };
 
-  const handleInputChange = (field: keyof CreateLecturer, value: string | number | Date) => {
+  const handleInputChange = (field: keyof CreateStudent, value: string | Date) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -184,16 +193,11 @@ function LecturerEditForm({
     }
   };
 
-  const handleDepartmentChange = (value: string) => {
-    const departmentId = parseInt(value);
-    handleInputChange("departmentId", departmentId);
-  };
-
   if (isLoadingData) {
     return (
       <div className="flex justify-center items-center py-8">
         <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2">Loading lecturer data...</span>
+        <span className="ml-2">Loading student data...</span>
       </div>
     );
   }
@@ -277,53 +281,6 @@ function LecturerEditForm({
           )}
         </div>
 
-        {/* Department Dropdown */}
-        <div className="space-y-2">
-          <Label htmlFor="department">
-            Department <span className="text-red-500">*</span>
-          </Label>
-          <Select
-            value={formData.departmentId > 0 ? formData.departmentId.toString() : ""}
-            onValueChange={handleDepartmentChange}
-            disabled={isLoading || state.loading || departmentState.loading}
-          >
-            <SelectTrigger className={errors.departmentId ? "border-red-500" : ""}>
-              <SelectValue placeholder="Select a department" />
-            </SelectTrigger>
-            <SelectContent>
-              {departmentState.loading ? (
-                <SelectItem value="loading" disabled>
-                  <div className="flex items-center">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading departments...
-                  </div>
-                </SelectItem>
-              ) : departmentState.departments.length === 0 ? (
-                <SelectItem value="no-departments" disabled>
-                  No departments available
-                </SelectItem>
-              ) : (
-                departmentState.departments.map((department) => (
-                  <SelectItem
-                    key={department.departmentId}
-                    value={department.departmentId.toString()}
-                  >
-                    {department.departmentName}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-          {errors.departmentId && (
-            <p className="text-sm text-red-500">{errors.departmentId}</p>
-          )}
-          {departmentState.error && (
-            <p className="text-sm text-orange-500">
-              Error loading departments: {departmentState.error}
-            </p>
-          )}
-        </div>
-
         {/* Date of Birth */}
         <div className="space-y-2">
           <Label htmlFor="dateOfBirth">
@@ -385,7 +342,7 @@ function LecturerEditForm({
               Updating...
             </>
           ) : (
-            "Update Lecturer"
+            "Update Student"
           )}
         </Button>
       </div>
@@ -393,4 +350,4 @@ function LecturerEditForm({
   );
 }
 
-export default LecturerEditForm;
+export default StudentEditForm;

@@ -5,6 +5,8 @@ import DepartmentPage from "./pages/department/DepartmentPage";
 import LecturerPage from "./pages/lecturer/LecturerPage";
 import LecturerDetails from "./pages/lecturer/LecturerDetails";
 import DepartmentDetailsPage from "./pages/department/DepartmentDetailsPage ";
+import StudentPage from "./pages/student/StudentPage";
+import StudentDetails from "./pages/student/StudentDetails";
 
 export default function App() {
   return (
@@ -20,6 +22,9 @@ export default function App() {
           <Route path="/department/:id" element={<DepartmentDetailsPage />} />
           <Route path="/lecturer/*" element={<LecturerPage />} />
           <Route path="/lecturer/:id" element={<LecturerDetails />} />
+          <Route path="/student/*" element={<StudentPage />} />
+          <Route path="/student/:id" element={<StudentDetails/>} />
+          {/* Add other routes as needed */}
         </Route>
       </Routes>
     </Router>

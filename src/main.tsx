@@ -5,15 +5,18 @@ import App from './App.tsx'
 import { DepartmentProvider } from '@/contexts/departmentContext'
 import { ThemeProvider } from './components/theme-provider.tsx'
 import { LecturerProvider } from './contexts/lecturerContext.tsx'
+import { StudentProvider } from './contexts/studentContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DepartmentProvider>
       <LecturerProvider>
-      <ThemeProvider>
-        <App />
-      </ThemeProvider> 
-      </LecturerProvider>     
+        <StudentProvider>
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
+        </StudentProvider>
+      </LecturerProvider>
     </DepartmentProvider>
   </StrictMode>,
 )
