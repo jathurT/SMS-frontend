@@ -1,4 +1,5 @@
-import { useToast } from "@/hooks/use-toast"
+"use client"
+
 import {
   Toast,
   ToastClose,
@@ -6,23 +7,39 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
+  ToastIcon,
+  ToastProgressBar,
 } from "@/components/ui/toast"
+import { useToast } from "@/hooks/use-toast"
 
 export function Toaster() {
   const { toasts } = useToast()
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, variant, duration, ...props }) {
         return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
+          <Toast key={id} variant={variant} {...props}>
+            <div className="flex items-start gap-3 w-full">
+              {/* Icon based on variant */}
+              <ToastIcon variant={variant} />
+              
+              {/* Content */}
+              <div className="grid gap-1 flex-1">
+                {title && <ToastTitle>{title}</ToastTitle>}
+                {description && (
+                  <ToastDescription>{description}</ToastDescription>
+                )}
+              </div>
+              
+              {/* Action button if provided */}
+              {action}
             </div>
-            {action}
+            
+            {/* Progress bar for toast duration */}
+            <ToastProgressBar duration={duration} variant={variant} />
+            
+            {/* Close button */}
             <ToastClose />
           </Toast>
         )

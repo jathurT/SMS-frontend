@@ -18,7 +18,7 @@ function DepartmentForm({ setIsOpen }: DepartmentFormProps) {
   });
   const [errors, setErrors] = useState<Partial<CreateDepartment>>({});
 
-  const { toast } = useToast();
+  const { success, error, info } = useToast(); // Using enhanced toast methods
   const { state, createDepartment } = useDepartmentContext();
 
   const validateForm = (): boolean => {
@@ -44,14 +44,23 @@ function DepartmentForm({ setIsOpen }: DepartmentFormProps) {
     }
 
     setIsLoading(true);
+    
+    // Show processing toast
+    info({
+      title: "Creating...",
+      description: "Setting up new department",
+      duration: 2000
+    });
+
     try {
       await createDepartment({
         departmentName: formData.departmentName.trim(),
       });
 
-      toast({
-        title: "Success",
-        description: "Department created successfully",
+      success({
+        title: "Department Created!",
+        description: `${formData.departmentName.trim()} has been successfully created`,
+        duration: 4000
       });
 
       // Reset form and close dialog
@@ -59,10 +68,10 @@ function DepartmentForm({ setIsOpen }: DepartmentFormProps) {
       setIsOpen(false);
     } catch (error: any) {
       console.error("Error creating department:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
+      error({
+        title: "Creation Failed",
         description: error.response?.data?.message || state.error || "Failed to create department",
+        duration: 6000
       });
     } finally {
       setIsLoading(false);

@@ -23,7 +23,7 @@ function DepartmentDeleteForm({
   isOpen,
   setIsOpen 
 }: DepartmentDeleteFormProps) {
-  const { toast } = useToast();
+  const { success, error } = useToast(); // Using enhanced toast methods
   const { state, deleteDepartment } = useDepartmentContext();
 
   // Use the loading state from the context
@@ -38,18 +38,19 @@ function DepartmentDeleteForm({
     try {
       await deleteDepartment(departmentId);
 
-      toast({
-        title: "Success",
+      success({
+        title: "Success!",
         description: "Department deleted successfully",
+        duration: 4000
       });
 
       setIsOpen(false);
     } catch (error: any) {
       console.error("Error deleting department:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
+      error({
+        title: "Delete Failed",
         description: error.response?.data?.message || "Failed to delete department",
+        duration: 6000
       });
     }
   };

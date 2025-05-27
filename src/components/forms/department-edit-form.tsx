@@ -23,7 +23,7 @@ function DepartmentEditForm({
   const [errors, setErrors] = useState<Partial<CreateDepartment>>({});
   const [isLoadingData, setIsLoadingData] = useState(true);
 
-  const { toast } = useToast();
+  const { success, error, info } = useToast(); // Using enhanced toast methods
   const { state, updateDepartment, fetchDepartmentById } = useDepartmentContext();
 
   // Load existing department data
@@ -50,10 +50,10 @@ function DepartmentEditForm({
         }
       } catch (error) {
         console.error("Error loading department:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
+        error({
+          title: "Loading Failed",
           description: "Failed to load department data",
+          duration: 5000
         });
         setIsOpen(false);
       } finally {
@@ -62,7 +62,7 @@ function DepartmentEditForm({
     };
 
     loadDepartment();
-  }, [departmentId, state.departments, fetchDepartmentById, setIsOpen, toast]);
+  }, [departmentId, state.departments, fetchDepartmentById, setIsOpen, error]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CreateDepartment> = {};
@@ -87,23 +87,32 @@ function DepartmentEditForm({
     }
 
     setIsLoading(true);
+    
+    // Show processing toast
+    info({
+      title: "Processing...",
+      description: "Updating department information",
+      duration: 2000
+    });
+
     try {
       await updateDepartment(departmentId, {
         departmentName: formData.departmentName.trim(),
       });
 
-      toast({
-        title: "Success",
-        description: "Department updated successfully",
+      success({
+        title: "Updated Successfully!",
+        description: "Department information has been updated",
+        duration: 4000
       });
 
       setIsOpen(false);
     } catch (error: any) {
       console.error("Error updating department:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
+      error({
+        title: "Update Failed",
         description: error.response?.data?.message || state.error || "Failed to update department",
+        duration: 6000
       });
     } finally {
       setIsLoading(false);

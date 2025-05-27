@@ -23,6 +23,7 @@ import { Outlet } from "react-router-dom";
 import Logo from "@/assets/images/Logo.svg";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster"; // Add this import
 import { useState, useEffect } from "react";
 
 // Add CSS for custom scrollbar styling
@@ -318,6 +319,9 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      
+      {/* Add the Toaster component here - this is crucial for toasts to work */}
+      <Toaster />
     </div>
   );
 }
