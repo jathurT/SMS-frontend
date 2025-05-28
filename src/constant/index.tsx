@@ -8,33 +8,30 @@ import {
   UserPlus,
   CheckSquare,
   Building,
+  icons,
 } from "lucide-react";
+import path from "path";
 
 const navLinks = [
   {
     title: "Dashboard",
     path: "/",
-    icon: <Home size={20} />, // Icon with size
+    icon: <Home size={20} />,
   },
-  // {
-  //   title: "Admin",
-  //   path: "/admin",
-  //   icon: <Shield size={20} />,
-  // },
   {
     title: "Department",
     path: "/department",
-    icon: <Building size={20} />, // Building icon
+    icon: <Building size={20} />,
   },
   {
     title: "Lecturer",
     path: "/lecturer",
-    icon: <GraduationCap size={20} />, // Academic hat icon
+    icon: <GraduationCap size={20} />,
   },
   {
     title: "Student",
     path: "/student",
-    icon: <Users size={20} />, // Users icon
+    icon: <Users size={20} />,
   },
   {
     title: "Course",
@@ -45,6 +42,11 @@ const navLinks = [
     title: "Enrollment",
     path: "/enrollment",
     icon: <UserPlus size={20} />,
+  },
+  {
+    title: "Session",
+    path: "/session",
+    icon: <Calendar size={20} />,
   },
   {
     title: "Attendance",
@@ -91,6 +93,7 @@ const columnHeadersCourse = [
   "Department Name",
   "Created At",
 ];
+
 const columnHeadersEnrollment = [
   "Enrollment ID",
   "Student ID",
@@ -100,6 +103,28 @@ const columnHeadersEnrollment = [
   "Course Code",
   "Enrollment Date",
 ];
+
+const columnHeadersAttendance = [
+  "Student ID",
+  "Student Name",
+  "Session ID",
+  "Session Name",
+  "Lecturer Name",
+  "Date",
+  "Start Time",
+  "End Time",
+];
+
+const columnHeadersSession = [
+  "Session ID",
+  "Course Name",
+  "Course Code",
+  "Lecturer Name",
+  "Date",
+  "Start Time",
+  "End Time",
+];
+
 export {
   navLinks,
   columnHeadersDepartment,
@@ -107,4 +132,6 @@ export {
   columnHeadersStudent,
   columnHeadersCourse,
   columnHeadersEnrollment,
+  columnHeadersAttendance,
+  columnHeadersSession,
 };

@@ -10,6 +10,9 @@ import StudentDetails from "./pages/student/StudentDetails";
 import CoursePage from "./pages/course/CoursePage";
 import CourseDetails from "./pages/course/CourseDetails";
 import EnrollmentPage from "./pages/enrollment/EnrollmentPage";
+import AttendancePage from "./pages/attendace/AttendancePage";
+import SessionPage from "./pages/session/SessionPage";
+import SessionDetails from "./pages/session/SessionDetails";
 
 export default function App() {
   return (
@@ -30,6 +33,9 @@ export default function App() {
           <Route path="/course/*" element={<CoursePage />} />
           <Route path="/course/:id" element={<CourseDetails />} />
           <Route path="/enrollment/*" element={<EnrollmentPage />} />
+          <Route path ="/attendance/*" element={<AttendancePage />} />
+          <Route path="/session/*" element={<SessionPage />} />
+          <Route path="/session/:id" element={<SessionDetails />} />
           {/* Add other routes as needed */}
         </Route>
       </Routes>
