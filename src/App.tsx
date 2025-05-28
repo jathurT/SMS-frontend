@@ -7,6 +7,8 @@ import LecturerDetails from "./pages/lecturer/LecturerDetails";
 import DepartmentDetailsPage from "./pages/department/DepartmentDetailsPage ";
 import StudentPage from "./pages/student/StudentPage";
 import StudentDetails from "./pages/student/StudentDetails";
+import CoursePage from "./pages/course/CoursePage";
+import CourseDetails from "./pages/course/CourseDetails";
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
           <Route path="/lecturer/:id" element={<LecturerDetails />} />
           <Route path="/student/*" element={<StudentPage />} />
           <Route path="/student/:id" element={<StudentDetails/>} />
+          <Route path="/course/*" element={<CoursePage />} />
+          <Route path="/course/:id" element={<CourseDetails />} />
           {/* Add other routes as needed */}
         </Route>
       </Routes>

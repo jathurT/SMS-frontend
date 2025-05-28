@@ -37,11 +37,6 @@ const navLinks = [
     icon: <Users size={20} />, // Users icon
   },
   {
-    title: "Schedule",
-    path: "/schedule",
-    icon: <Calendar size={20} />,
-  },
-  {
     title: "Course",
     path: "/course",
     icon: <BookOpen size={20} />,
@@ -63,69 +58,6 @@ const navLinks = [
   },
 ];
 
-const columnHeadersBooking = [
-  "Reference Id",
-  "Appointment Number",
-  "Name",
-  "NIC",
-  "Contact Number",
-  "Email",
-  "Address",
-  "ScheduleId",
-  "scheduleDate",
-  "scheduleDayOfWeek",
-  "scheduleStatus",
-  "scheduleStartTime",
-  "doctorName",
-  "Status",
-  "Date",
-  "Day Of Week",
-  "Created At",
-];
-
-const columnHeadersDoctor = [
-  "Id",
-  "User Name",
-  "Email",
-  "Gender",
-  "First Name",
-  "Specialization",
-  "License Number",
-  "Phone Number",
-  "Nic",
-  "Roles",
-];
-
-const columnHeadersReceptionist = [
-  "Id",
-  "User Name",
-  "Email",
-  "Gender",
-  "First Name",
-  "Phone Number",
-  "Nic",
-  "Roles",
-];
-
-const columnHeadersPatient = [
-  "Id", "Name", "Email", "NIC", "Contact Number"
-];
-
-const columnHeadersSchedule = [
-  "Id",
-  "Date",
-  "Day Of Week",
-  "Status",
-  "Number Of Bookings",
-  "Bookings",
-  "Start Time",
-  "End Time",
-  "Duration",
-  "Dentist Id",
-  "Capacity",
-  "Available Slots",
-  "Created At",
-];
 
 const columnHeadersDepartment = [
   "Department ID",
@@ -153,14 +85,21 @@ const columnHeadersStudent = [
   "Date of Birth",
 ];
 
+const columnHeadersCourse = [
+  "Course ID",
+  "Course Name",
+  "Course Code",
+  "Enrollment Key",
+  "Credits",
+  "Semester",
+  "Department Name",
+  "Created At",
+]
+
 export {
   navLinks,
-  columnHeadersBooking,
-  columnHeadersDoctor,
-  columnHeadersSchedule,
-  columnHeadersReceptionist,
-  columnHeadersPatient,
   columnHeadersDepartment, 
   columnHeadersLecturer,
   columnHeadersStudent,
+  columnHeadersCourse,
 }
