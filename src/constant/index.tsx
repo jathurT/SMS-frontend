@@ -42,14 +42,14 @@ const navLinks = [
     icon: <BookOpen size={20} />,
   },
   {
-    title: "Attendance",
-    path: "/attendance",
-    icon: <CheckSquare size={20} />, // Check square icon
-  },
-  {
     title: "Enrollment",
     path: "/enrollment",
-    icon: <UserPlus size={20} />, // User plus icon
+    icon: <UserPlus size={20} />,
+  },
+  {
+    title: "Attendance",
+    path: "/attendance",
+    icon: <CheckSquare size={20} />,
   },
   {
     title: "My Profile",
@@ -58,11 +58,7 @@ const navLinks = [
   },
 ];
 
-
-const columnHeadersDepartment = [
-  "Department ID",
-  "Department Name",
-];
+const columnHeadersDepartment = ["Department ID", "Department Name"];
 
 const columnHeadersLecturer = [
   "Lecturer ID",
@@ -94,12 +90,21 @@ const columnHeadersCourse = [
   "Semester",
   "Department Name",
   "Created At",
-]
-
+];
+const columnHeadersEnrollment = [
+  "Enrollment ID",
+  "Student ID",
+  "Student Name",
+  "Course ID",
+  "Course Name",
+  "Course Code",
+  "Enrollment Date",
+];
 export {
   navLinks,
-  columnHeadersDepartment, 
+  columnHeadersDepartment,
   columnHeadersLecturer,
   columnHeadersStudent,
   columnHeadersCourse,
-}
+  columnHeadersEnrollment,
+};

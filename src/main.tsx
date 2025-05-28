@@ -7,6 +7,7 @@ import { ThemeProvider } from "./components/theme-provider.tsx";
 import { LecturerProvider } from "./contexts/lecturerContext.tsx";
 import { StudentProvider } from "./contexts/studentContext.tsx";
 import { CourseProvider } from "./contexts/courseContext.tsx";
+import { EnrollmentProvider } from "./contexts/enrollmentContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -14,9 +15,11 @@ createRoot(document.getElementById("root")!).render(
       <LecturerProvider>
         <StudentProvider>
           <CourseProvider>
-            <ThemeProvider>
-              <App />
-            </ThemeProvider>
+            <EnrollmentProvider>
+              <ThemeProvider>
+                <App />
+              </ThemeProvider>
+            </EnrollmentProvider>
           </CourseProvider>
         </StudentProvider>
       </LecturerProvider>

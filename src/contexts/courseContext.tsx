@@ -25,7 +25,9 @@ type CourseAction =
   | { type: "SET_DETAILS_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "SET_ANALYTICS_ERROR"; payload: string | null }
-  | { type: "SET_DETAILS_ERROR"; payload: string | null };
+  | { type: "SET_DETAILS_ERROR"; payload: string | null }
+  | { type: "FETCH_COURSES_BY_DEPARTMENT"; payload: Course[] }
+  | { type: "CLEAR_COURSES" };
 
 // Course state interface
 interface CourseState {
@@ -147,6 +149,19 @@ const courseReducer = (
         detailsError: action.payload,
         detailsLoading: false,
       };
+    case "FETCH_COURSES_BY_DEPARTMENT":
+      return {
+        ...state,
+        courses: action.payload,
+        loading: false,
+        error: null,
+      };
+    case "CLEAR_COURSES":
+      return {
+        ...state,
+        courses: [],
+        error: null,
+      };
     default:
       return state;
   }
@@ -178,6 +193,8 @@ interface CourseContextType {
   setAnalyticsLoading: (loading: boolean) => void;
   setDetailsError: (error: string | null) => void;
   setDetailsLoading: (loading: boolean) => void;
+  fetchCoursesByDepartment: (departmentId: number) => Promise<void>;
+  clearCourses: () => void;
 }
 
 // Context
@@ -269,7 +286,10 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
 
       dispatch({ type: "FETCH_COURSE_ANALYTICS", payload: analytics });
 
-      console.log("Successfully updated state with course analytics:", analytics);
+      console.log(
+        "Successfully updated state with course analytics:",
+        analytics
+      );
     } catch (error: any) {
       console.error("Error fetching course analytics:", error);
       const errorMessage =
@@ -310,41 +330,44 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const fetchCourseDetails = useCallback(async (id: number): Promise<CourseDetails> => {
-    try {
-      dispatch({ type: "SET_DETAILS_LOADING", payload: true });
-      dispatch({ type: "SET_DETAILS_ERROR", payload: null });
+  const fetchCourseDetails = useCallback(
+    async (id: number): Promise<CourseDetails> => {
+      try {
+        dispatch({ type: "SET_DETAILS_LOADING", payload: true });
+        dispatch({ type: "SET_DETAILS_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<CourseDetails>>(
-        `/courses/details/${id}`
-      );
+        const response = await axiosInstance.get<ApiResponse<CourseDetails>>(
+          `/courses/details/${id}`
+        );
 
-      console.log("Course details response:", response.data);
-      console.log("Course details from body:", response.data.body);
+        console.log("Course details response:", response.data);
+        console.log("Course details from body:", response.data.body);
 
-      const courseDetails = response.data.body;
+        const courseDetails = response.data.body;
 
-      if (!courseDetails) {
-        throw new Error("Invalid response format: no data in body field");
+        if (!courseDetails) {
+          throw new Error("Invalid response format: no data in body field");
+        }
+
+        dispatch({ type: "FETCH_COURSE_DETAILS", payload: courseDetails });
+
+        console.log(
+          "Successfully updated state with course details:",
+          courseDetails
+        );
+        return courseDetails;
+      } catch (error: any) {
+        console.error("Error fetching course details:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to fetch course details";
+        dispatch({ type: "SET_DETAILS_ERROR", payload: errorMessage });
+        throw error;
       }
-
-      dispatch({ type: "FETCH_COURSE_DETAILS", payload: courseDetails });
-
-      console.log(
-        "Successfully updated state with course details:",
-        courseDetails
-      );
-      return courseDetails;
-    } catch (error: any) {
-      console.error("Error fetching course details:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to fetch course details";
-      dispatch({ type: "SET_DETAILS_ERROR", payload: errorMessage });
-      throw error;
-    }
-  }, []);
+    },
+    []
+  );
 
   const createCourse = useCallback(
     async (course: CreateCourse): Promise<Course> => {
@@ -477,6 +500,47 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     [state.courseDetails, fetchCourseDetails]
   );
 
+  const fetchCoursesByDepartment = useCallback(async (departmentId: number) => {
+    try {
+      dispatch({ type: "SET_LOADING", payload: true });
+      dispatch({ type: "SET_ERROR", payload: null });
+
+      const response = await axiosInstance.get<ApiResponse<Course[]>>(
+        `/courses/department/${departmentId}`
+      );
+
+      console.log("Courses by department response:", response.data);
+      console.log("Courses from body:", response.data.body);
+
+      const courses = response.data.body || [];
+
+      if (!Array.isArray(courses)) {
+        console.error("Expected array but got:", courses);
+        throw new Error(
+          "Invalid response format: expected array in body field"
+        );
+      }
+
+      dispatch({ type: "FETCH_COURSES_BY_DEPARTMENT", payload: courses });
+
+      console.log(
+        "Successfully updated state with department courses:",
+        courses
+      );
+    } catch (error: any) {
+      console.error("Error fetching courses by department:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch courses for department";
+      dispatch({ type: "SET_ERROR", payload: errorMessage });
+    }
+  }, []);
+
+  const clearCourses = useCallback(() => {
+    dispatch({ type: "CLEAR_COURSES" });
+  }, []);
+
   // Auto-fetch courses on mount
   useEffect(() => {
     fetchCourses();
@@ -500,6 +564,8 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         setAnalyticsLoading,
         setDetailsError,
         setDetailsLoading,
+        fetchCoursesByDepartment,
+        clearCourses,
       }}
     >
       {children}

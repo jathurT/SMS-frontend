@@ -65,7 +65,7 @@ export default function Layout() {
   // Static user data - replace with your actual user data or remove if not needed
   const currentUser = {
     username: "John Doe",
-    email: "john.doe@example.com"
+    email: "john.doe@example.com",
   };
 
   // Show all navigation links since we removed role-based filtering
@@ -109,9 +109,7 @@ export default function Layout() {
           <div className="flex flex-col items-center justify-center border-b py-6">
             <Link to="/" className="flex flex-col items-center gap-2">
               <img src={Logo} className="h-24 w-24" alt="DN Dental Logo" />
-              <span className="text-xl font-bold text-primary">
-                SM SYSTEM
-              </span>
+              <span className="text-xl font-bold text-primary">SM SYSTEM</span>
             </Link>
           </div>
 
@@ -123,9 +121,10 @@ export default function Layout() {
                   key={link.path}
                   to={link.path}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all ${isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`
                   }
                 >
@@ -194,9 +193,10 @@ export default function Layout() {
                           to={link.path}
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={({ isActive }) =>
-                            `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all ${isActive
-                              ? "bg-primary/10 text-primary"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
+                              isActive
+                                ? "bg-primary/10 text-primary"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             }`
                           }
                         >
@@ -238,7 +238,7 @@ export default function Layout() {
             <div className="lg:hidden">
               <Link to="/" className="flex items-center gap-2">
                 <img src={Logo} className="h-8 w-8" alt="Logo" />
-                <span className="font-bold text-primary">DN Dental</span>
+                <span className="font-bold text-primary">SM System</span>
               </Link>
             </div>
           </div>
@@ -319,7 +319,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
-      
+
       {/* Add the Toaster component here - this is crucial for toasts to work */}
       <Toaster />
     </div>

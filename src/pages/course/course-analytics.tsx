@@ -461,64 +461,6 @@ const CourseAnalytics = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Action Items */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Recommended Actions
-          </CardTitle>
-          <CardDescription>
-            AI-powered suggestions to improve course performance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {underperformingCourses > 0 && (
-              <div className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                <div>
-                  <div className="font-medium text-yellow-800 dark:text-yellow-200">
-                    Review Underperforming Courses
-                  </div>
-                  <div className="text-sm text-yellow-700 dark:text-yellow-300">
-                    {underperformingCourses} courses have low enrollment or session activity. Consider marketing campaigns or curriculum updates.
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {totalSessions / totalCourses < 2 && (
-              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 rounded-lg">
-                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <div className="font-medium text-blue-800 dark:text-blue-200">
-                    Increase Session Frequency
-                  </div>
-                  <div className="text-sm text-blue-700 dark:text-blue-300">
-                    Average sessions per course is low. Consider scheduling more regular sessions to improve engagement.
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {avgEnrollmentPerCourse < 5 && (
-              <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/10 border border-green-200 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <div className="font-medium text-green-800 dark:text-green-200">
-                    Boost Enrollment
-                  </div>
-                  <div className="text-sm text-green-700 dark:text-green-300">
-                    Low average enrollment detected. Focus on improving course visibility and value proposition.
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
