@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import axiosInstance from '@/api/axiosInstance';
 import { AttendanceRecord, NonAttendingStudent, AttendanceState, AttendanceContextType } from '@/types/attendance';
+import apiClient from '../utils/apiClient';
 
 type AttendanceAction =
   | { type: 'FETCH_ATTENDANCES_START' }
@@ -87,7 +87,7 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const fetchAttendancesBySession = useCallback(async (sessionId: number) => {
     dispatch({ type: 'FETCH_ATTENDANCES_START' });
     try {
-      const response = await axiosInstance.get<ApiResponse<AttendanceRecord[]>>(`/attendances/session/${sessionId}`);
+      const response = await apiClient.get<ApiResponse<AttendanceRecord[]>>(`/attendances/session/${sessionId}`);
       const attendances = response.data.body || [];
       dispatch({ type: 'FETCH_ATTENDANCES_SUCCESS', payload: attendances });
     } catch (error: any) {
@@ -100,7 +100,7 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const fetchNonAttendingStudents = useCallback(async (sessionId: number) => {
     dispatch({ type: 'FETCH_NON_ATTENDING_START' });
     try {
-      const response = await axiosInstance.get<ApiResponse<NonAttendingStudent[]>>(`/attendances/non-attending-students/session/${sessionId}`);
+      const response = await apiClient.get<ApiResponse<NonAttendingStudent[]>>(`/attendances/non-attending-students/session/${sessionId}`);
       const students = response.data.body || [];
       console.log('Non-attending students response:', students); // Debug log
       dispatch({ type: 'FETCH_NON_ATTENDING_SUCCESS', payload: students });
@@ -115,7 +115,7 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     dispatch({ type: 'CREATE_ATTENDANCE_START' });
     try {
       // Send the studentId as a raw number in the request body
-      const response = await axiosInstance.post<ApiResponse<AttendanceRecord>>(
+      const response = await apiClient.post<ApiResponse<AttendanceRecord>>(
         `/attendances/add/session/${sessionId}`, 
         studentId,
         {
@@ -137,7 +137,7 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const deleteAttendance = useCallback(async (sessionId: number, studentId: number) => {
     dispatch({ type: 'DELETE_ATTENDANCE_START' });
     try {
-      await axiosInstance.delete(`/attendances/delete/session/${sessionId}/student/${studentId}`);
+      await apiClient.delete(`/attendances/delete/session/${sessionId}/student/${studentId}`);
       dispatch({ type: 'DELETE_ATTENDANCE_SUCCESS', payload: { sessionId, studentId } });
       
       // Refetch non-attending students to update the list after deletion

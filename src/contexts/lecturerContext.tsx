@@ -6,7 +6,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import axiosInstance from "@/api/axiosInstance";
+import apiClient from '../utils/apiClient';
 import {
   LecturerAnalyticsData,
   Lecturer,
@@ -210,7 +210,7 @@ export const LecturerProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<Lecturer[]>>(
+      const response = await apiClient.get<ApiResponse<Lecturer[]>>(
         "/lecturers/all"
       );
 
@@ -244,7 +244,7 @@ export const LecturerProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ANALYTICS_LOADING", payload: true });
       dispatch({ type: "SET_ANALYTICS_ERROR", payload: null });
 
-      const response = await axiosInstance.get<
+      const response = await apiClient.get<
         ApiResponse<LecturerAnalyticsData[]>
       >("/lecturers/analytics");
 
@@ -278,7 +278,7 @@ export const LecturerProvider = ({ children }: { children: ReactNode }) => {
       try {
         dispatch({ type: "SET_ERROR", payload: null });
 
-        const response = await axiosInstance.get<ApiResponse<Lecturer>>(
+        const response = await apiClient.get<ApiResponse<Lecturer>>(
           `/lecturers/${id}`
         );
         return response.data.body;
@@ -302,7 +302,7 @@ export const LecturerProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_DETAILS_LOADING", payload: true });
         dispatch({ type: "SET_DETAILS_ERROR", payload: null });
 
-        const response = await axiosInstance.get<
+        const response = await apiClient.get<
           ApiResponse<LecturerDetailsData>
         >(`/lecturers/details/${id}`);
 
@@ -341,7 +341,7 @@ export const LecturerProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.post<ApiResponse<Lecturer>>(
+        const response = await apiClient.post<ApiResponse<Lecturer>>(
           "/lecturers/add",
           lecturer
         );
@@ -381,7 +381,7 @@ export const LecturerProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.put<ApiResponse<Lecturer>>(
+        const response = await apiClient.put<ApiResponse<Lecturer>>(
           `/lecturers/update/${id}`,
           lecturer
         );
@@ -412,7 +412,7 @@ export const LecturerProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ERROR", payload: null });
       dispatch({ type: "SET_LOADING", payload: true });
 
-      await axiosInstance.delete(`/lecturers/delete/${id}`);
+      await apiClient.delete(`/lecturers/delete/${id}`);
 
       dispatch({ type: "DELETE_LECTURER", payload: id });
     } catch (error: any) {

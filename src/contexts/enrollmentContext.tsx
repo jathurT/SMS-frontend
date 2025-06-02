@@ -1,6 +1,6 @@
 // contexts/enrollmentContext.tsx
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import axiosInstance from '@/api/axiosInstance';
+import apiClient from '../utils/apiClient';
 import { Enrollment, CreateEnrollmentRequest, EnrollmentContextType } from '@/types/enrollment';
 
 type EnrollmentState = {
@@ -82,7 +82,7 @@ export const EnrollmentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const fetchEnrollmentsByStudentId = useCallback(async (studentId: number) => {
     dispatch({ type: 'FETCH_START' });
     try {
-      const response = await axiosInstance.get<ApiResponse<Enrollment[]>>(`/enrollments/student/${studentId}`);
+      const response = await apiClient.get<ApiResponse<Enrollment[]>>(`/enrollments/student/${studentId}`);
       const enrollments = response.data.body || [];
       dispatch({ type: 'FETCH_SUCCESS', payload: enrollments });
     } catch (error: any) {
@@ -96,7 +96,7 @@ export const EnrollmentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     dispatch({ type: 'FETCH_START' });
     try {
       // Try with the exact working path from your test
-      const response = await axiosInstance.get<ApiResponse<Enrollment[]>>(`/enrollments/course/${courseId}`);
+      const response = await apiClient.get<ApiResponse<Enrollment[]>>(`/enrollments/course/${courseId}`);
       const enrollments = response.data.body || [];
       dispatch({ type: 'FETCH_SUCCESS', payload: enrollments });
     } catch (error: any) {
@@ -109,7 +109,7 @@ export const EnrollmentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const getAllEnrollments = useCallback(async () => {
     dispatch({ type: 'FETCH_START' });
     try {
-      const response = await axiosInstance.get<ApiResponse<Enrollment[]>>('/enrollments/all');
+      const response = await apiClient.get<ApiResponse<Enrollment[]>>('/enrollments/all');
       const enrollments = response.data.body || [];
       dispatch({ type: 'FETCH_SUCCESS', payload: enrollments });
     } catch (error: any) {
@@ -122,7 +122,7 @@ export const EnrollmentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const createEnrollment = useCallback(async (courseId: number, request: CreateEnrollmentRequest) => {
     dispatch({ type: 'CREATE_START' });
     try {
-      const response = await axiosInstance.post<ApiResponse<Enrollment>>(`/enrollments/${courseId}`, request);
+      const response = await apiClient.post<ApiResponse<Enrollment>>(`/enrollments/${courseId}`, request);
       const newEnrollment = response.data.body;
       dispatch({ type: 'CREATE_SUCCESS', payload: newEnrollment });
     } catch (error: any) {
@@ -136,7 +136,7 @@ export const EnrollmentProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const deleteEnrollment = useCallback(async (id: number) => {
     dispatch({ type: 'DELETE_START' });
     try {
-      await axiosInstance.delete(`/enrollments/delete/${id}`);
+      await apiClient.delete(`/enrollments/delete/${id}`);
       dispatch({ type: 'DELETE_SUCCESS', payload: id });
     } catch (error: any) {
       console.error('Error deleting enrollment:', error);

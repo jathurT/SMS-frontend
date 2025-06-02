@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import axiosInstance from '@/api/axiosInstance';
+import apiClient from '../utils/apiClient';
 import { Session, SessionState, SessionContextType, CreateSessionRequest, UpdateSessionRequest } from '@/types/session';
 
 type SessionAction =
@@ -106,7 +106,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const fetchAllSessions = useCallback(async () => {
     dispatch({ type: 'FETCH_SESSIONS_START' });
     try {
-      const response = await axiosInstance.get<ApiResponse<Session[]>>('/sessions/all');
+      const response = await apiClient.get<ApiResponse<Session[]>>('/sessions/all');
       const sessions = response.data.body || [];
       dispatch({ type: 'FETCH_SESSIONS_SUCCESS', payload: sessions });
     } catch (error: any) {
@@ -119,7 +119,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const fetchSessionById = useCallback(async (id: number) => {
     dispatch({ type: 'FETCH_SESSION_START' });
     try {
-      const response = await axiosInstance.get<ApiResponse<Session>>(`/sessions/${id}`);
+      const response = await apiClient.get<ApiResponse<Session>>(`/sessions/${id}`);
       const session = response.data.body;
       dispatch({ type: 'FETCH_SESSION_SUCCESS', payload: session });
     } catch (error: any) {
@@ -132,7 +132,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const fetchSessionsByCourse = useCallback(async (courseId: number) => {
     dispatch({ type: 'FETCH_SESSIONS_START' });
     try {
-      const response = await axiosInstance.get<ApiResponse<Session[]>>(`/sessions/course/${courseId}`);
+      const response = await apiClient.get<ApiResponse<Session[]>>(`/sessions/course/${courseId}`);
       const sessions = response.data.body || [];
       dispatch({ type: 'FETCH_SESSIONS_SUCCESS', payload: sessions });
     } catch (error: any) {
@@ -145,7 +145,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const createSession = useCallback(async (courseId: number, lecturerId: number, request: CreateSessionRequest) => {
     dispatch({ type: 'CREATE_SESSION_START' });
     try {
-      const response = await axiosInstance.post<ApiResponse<Session>>(`/sessions/add/course/${courseId}/lecturer/${lecturerId}`, request);
+      const response = await apiClient.post<ApiResponse<Session>>(`/sessions/add/course/${courseId}/lecturer/${lecturerId}`, request);
       const newSession = response.data.body;
       dispatch({ type: 'CREATE_SESSION_SUCCESS', payload: newSession });
     } catch (error: any) {
@@ -159,7 +159,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateSession = useCallback(async (id: number, request: UpdateSessionRequest) => {
     dispatch({ type: 'UPDATE_SESSION_START' });
     try {
-      const response = await axiosInstance.put<ApiResponse<Session>>(`/sessions/update/${id}`, request);
+      const response = await apiClient.put<ApiResponse<Session>>(`/sessions/update/${id}`, request);
       const updatedSession = response.data.body;
       dispatch({ type: 'UPDATE_SESSION_SUCCESS', payload: updatedSession });
     } catch (error: any) {
@@ -173,7 +173,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteSession = useCallback(async (id: number) => {
     dispatch({ type: 'DELETE_SESSION_START' });
     try {
-      await axiosInstance.delete(`/sessions/delete/${id}`);
+      await apiClient.delete(`/sessions/delete/${id}`);
       dispatch({ type: 'DELETE_SESSION_SUCCESS', payload: id });
     } catch (error: any) {
       console.error('Error deleting session:', error);

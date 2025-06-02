@@ -6,13 +6,13 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import axiosInstance from "@/api/axiosInstance";
 import {
   DepartmentAnalyticsData,
   Department,
   CreateDepartment,
   DepartmentAnalyticsDetail,
 } from "@/types/department";
+import apiClient from '../utils/apiClient';
 
 // Updated interfaces to match your API response
 
@@ -191,7 +191,7 @@ export const DepartmentProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<Department[]>>(
+      const response = await apiClient.get<ApiResponse<Department[]>>(
         "/departments/all"
       );
 
@@ -225,7 +225,7 @@ export const DepartmentProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ANALYTICS_LOADING", payload: true });
       dispatch({ type: "SET_ANALYTICS_ERROR", payload: null });
 
-      const response = await axiosInstance.get<
+      const response = await apiClient.get<
         ApiResponse<DepartmentAnalyticsData[]>
       >("/departments/analytics");
 
@@ -259,7 +259,7 @@ export const DepartmentProvider = ({ children }: { children: ReactNode }) => {
       try {
         dispatch({ type: "SET_ERROR", payload: null });
 
-        const response = await axiosInstance.get<ApiResponse<Department>>(
+        const response = await apiClient.get<ApiResponse<Department>>(
           `/departments/${id}`
         );
         return response.data.body;
@@ -282,7 +282,7 @@ export const DepartmentProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.post<ApiResponse<Department>>(
+        const response = await apiClient.post<ApiResponse<Department>>(
           "/departments/add",
           department
         );
@@ -322,7 +322,7 @@ export const DepartmentProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.put<ApiResponse<Department>>(
+        const response = await apiClient.put<ApiResponse<Department>>(
           `/departments/update/${id}`,
           department
         );
@@ -353,7 +353,7 @@ export const DepartmentProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ERROR", payload: null });
       dispatch({ type: "SET_LOADING", payload: true });
 
-      await axiosInstance.delete(`/departments/delete/${id}`);
+      await apiClient.delete(`/departments/delete/${id}`);
 
       dispatch({ type: "DELETE_DEPARTMENT", payload: id });
     } catch (error: any) {
@@ -373,7 +373,7 @@ export const DepartmentProvider = ({ children }: { children: ReactNode }) => {
   const fetchDepartmentAnalyticsById = useCallback(
     async (id: number): Promise<DepartmentAnalyticsDetail> => {
       try {
-        const response = await axiosInstance.get<
+        const response = await apiClient.get<
           ApiResponse<DepartmentAnalyticsDetail>
         >(`/departments/analytics/${id}`);
         return response.data.body;

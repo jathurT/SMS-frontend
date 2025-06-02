@@ -8,9 +8,7 @@ import {
   UserPlus,
   CheckSquare,
   Building,
-  icons,
 } from "lucide-react";
-import path from "path";
 
 const navLinks = [
   {

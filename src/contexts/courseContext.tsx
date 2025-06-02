@@ -6,7 +6,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import axiosInstance from "@/api/axiosInstance";
+import apiClient from '../utils/apiClient';
 import { Course, CreateCourse, CourseDetails } from "@/types/course";
 
 // Course analytics interface based on your API response
@@ -233,7 +233,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<Course[]>>(
+      const response = await apiClient.get<ApiResponse<Course[]>>(
         "/courses/all"
       );
 
@@ -268,7 +268,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ANALYTICS_LOADING", payload: true });
       dispatch({ type: "SET_ANALYTICS_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<CourseDetails[]>>(
+      const response = await apiClient.get<ApiResponse<CourseDetails[]>>(
         "/courses/analytics"
       );
 
@@ -305,7 +305,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_DETAILS_LOADING", payload: true });
       dispatch({ type: "SET_DETAILS_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<Course>>(
+      const response = await apiClient.get<ApiResponse<Course>>(
         `/courses/${id}`
       );
 
@@ -336,7 +336,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_DETAILS_LOADING", payload: true });
         dispatch({ type: "SET_DETAILS_ERROR", payload: null });
 
-        const response = await axiosInstance.get<ApiResponse<CourseDetails>>(
+        const response = await apiClient.get<ApiResponse<CourseDetails>>(
           `/courses/details/${id}`
         );
 
@@ -375,7 +375,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.post<ApiResponse<Course>>(
+        const response = await apiClient.post<ApiResponse<Course>>(
           "/courses/add",
           course
         );
@@ -415,7 +415,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.put<ApiResponse<Course>>(
+        const response = await apiClient.put<ApiResponse<Course>>(
           `/courses/update/${id}`,
           course
         );
@@ -446,7 +446,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ERROR", payload: null });
       dispatch({ type: "SET_LOADING", payload: true });
 
-      await axiosInstance.delete(`/courses/delete/${id}`);
+      await apiClient.delete(`/courses/delete/${id}`);
 
       dispatch({ type: "DELETE_COURSE", payload: id });
     } catch (error: any) {
@@ -470,7 +470,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.post<ApiResponse<Course>>(
+        const response = await apiClient.post<ApiResponse<Course>>(
           `/courses/add-lecturer/${courseId}/${lecturerId}`
         );
         const updatedCourse = response.data.body;
@@ -505,7 +505,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<Course[]>>(
+      const response = await apiClient.get<ApiResponse<Course[]>>(
         `/courses/department/${departmentId}`
       );
 

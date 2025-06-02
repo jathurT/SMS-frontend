@@ -1,4 +1,4 @@
-import axiosInstance from "@/api/axiosInstance";
+import  apiClient  from "@/utils/apiClient";
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { useEffect, useState } from "react";
@@ -27,7 +27,7 @@ import {
 
 const fetchData = async () => {
     try {
-        const response = await axiosInstance.get("/schedules/scheduleHistory");
+        const response = await apiClient.get("/schedules/scheduleHistory");
         return response.data;
     } catch (error) {
         console.error("Error fetching data:", error);
