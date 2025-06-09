@@ -1,16 +1,18 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import keycloak from '../config/keycloak';
+import { KeycloakProfile } from 'keycloak-js';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
-  user: any;
+  user: KeycloakProfile | null;
   token: string | null;
   login: () => void;
   logout: () => void;
   hasRole: (role: string) => boolean;
   hasAnyRole: (roles: string[]) => boolean;
   refreshToken: () => Promise<boolean>;
+  getUserRoles: () => string[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,31 +32,48 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<KeycloakProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialized = useRef(false);
 
-  // Enhanced logout function
-  const logout = useCallback(() => {
+  // Enhanced logout function with proper session clearing
+  const logout = useCallback(async () => {
     console.log('🔓 Logging out...');
+    
+    // Clear local state first
     setIsAuthenticated(false);
     setUser(null);
     setToken(null);
+    
+    // Clear the refresh interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    keycloak.logout({
-      redirectUri: window.location.origin
-    });
+
+    try {
+      // Clear any local storage or session storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Logout from Keycloak with proper options
+      await keycloak.logout({
+        redirectUri: window.location.origin,
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Force redirect to login even if logout fails
+      window.location.href = window.location.origin;
+    }
   }, []);
 
   // Enhanced login function
   const login = useCallback(() => {
     console.log('🔐 Redirecting to login...');
     keycloak.login({
-      redirectUri: window.location.origin
+      redirectUri: window.location.origin,
+      prompt: 'login' // Force re-authentication
     });
   }, []);
 
@@ -76,6 +95,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return false;
     }
   }, [logout]);
+
+  // Get user roles function
+  const getUserRoles = useCallback((): string[] => {
+    try {
+      if (keycloak.realmAccess?.roles) {
+        return keycloak.realmAccess.roles;
+      }
+      
+      if (keycloak.token) {
+        const payload = JSON.parse(atob(keycloak.token.split('.')[1]));
+        return payload.realm_access?.roles || [];
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error getting user roles:', error);
+      return [];
+    }
+  }, []);
 
   // Enhanced role checking functions with debugging
   const hasRole = useCallback((role: string): boolean => {
@@ -108,10 +146,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const initKeycloak = async () => {
       try {
+        // Modified initialization to prevent auto-login
         const authenticated = await keycloak.init({
           onLoad: 'check-sso',
           checkLoginIframe: false,
           pkceMethod: 'S256',
+          // Add this to prevent silent authentication
+          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html'
         });
 
         console.log('🔑 Keycloak init result:', authenticated);
@@ -220,7 +261,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     hasRole,
     hasAnyRole,
-    refreshToken
+    refreshToken,
+    getUserRoles
   };
 
   return (
