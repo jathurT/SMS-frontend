@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { ChevronDown, Search } from "lucide-react";
-import axiosInstance from "@/api/axiosInstance";
-
+import apiClient from "@/utils/apiClient"; // Adjust the import based on your project structure
 interface Lecturer {
   lecturerId: number;
   firstName: string;
@@ -36,7 +35,7 @@ export function LecturerSearchableDropdown({
     const fetchLecturers = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get('/lecturers/all');
+        const response = await apiClient.get('/lecturers/all');
         const lecturerData = response.data.body || response.data || [];
         setLecturers(lecturerData);
         

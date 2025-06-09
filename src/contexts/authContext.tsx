@@ -1,132 +1,272 @@
-import {
-  createContext,
-  ReactNode,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import keycloak from '../config/keycloak';
+import { KeycloakProfile } from 'keycloak-js';
 
-import axiosInstance from "@/api/axiosInstance";
-
-interface User {
-  username: string;
-  roles: string[];
+interface AuthContextType {
+  isAuthenticated: boolean;
+  loading: boolean;
+  user: KeycloakProfile | null;
+  token: string | null;
+  login: () => void;
+  logout: () => void;
+  hasRole: (role: string) => boolean;
+  hasAnyRole: (roles: string[]) => boolean;
+  refreshToken: () => Promise<boolean>;
+  getUserRoles: () => string[];
 }
 
-type AuthState = User | null;
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-type AuthAction = { type: "SET_USER"; payload: User } | { type: "CLEAR_USER" };
-
-const initialAuthState: AuthState = null;
-
-// Reducer function
-const authReducer = (_state: AuthState, action: AuthAction): AuthState => {
-  switch (action.type) {
-    case "SET_USER":
-      return action.payload;
-    case "CLEAR_USER":
-      return null;
-    default:
-      return null;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
+  return context;
 };
 
-// Create context
-export const AuthContext = createContext<{
-  authState: AuthState;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  signup: (
-    username: string,
-    password: string,
-    roles: string[]
-  ) => Promise<void>;
-  isLording: boolean;
-  setIsLording: React.Dispatch<React.SetStateAction<boolean>>;
-}>(null!);
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
 
-// AuthProvider component
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [authState, dispatch] = useReducer(authReducer, initialAuthState);
-  const [isLording, setIsLording] = useState(true);
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<KeycloakProfile | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialized = useRef(false);
 
-  useEffect(() => {
-    setIsLording(true);
-    axiosInstance
-      .get("/auth/user")
-      .then(({ data }) => {
-        const { username, roles } = data;
-        dispatch({ type: "SET_USER", payload: { username, roles } });
-      })
-      .catch((error) => {
-        console.error("Error fetching user data:", error.message);
-      })
-      .finally(() => {
-        setIsLording(false);
+  // Enhanced logout function with proper session clearing
+  const logout = useCallback(async () => {
+    console.log('🔓 Logging out...');
+    
+    // Clear local state first
+    setIsAuthenticated(false);
+    setUser(null);
+    setToken(null);
+    
+    // Clear the refresh interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    try {
+      // Clear any local storage or session storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Logout from Keycloak with proper options
+      await keycloak.logout({
+        redirectUri: window.location.origin,
       });
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Force redirect to login even if logout fails
+      window.location.href = window.location.origin;
+    }
   }, []);
 
-  // Login function
-  const login = async (userNameOrEmail: string, password: string) => {
-    setIsLording(true);
-    try {
-      const response = await axiosInstance.post("/auth/signin", {
-        userNameOrEmail,
-        password,
-      });
-      const { username: user, roles } = response.data;
-      dispatch({ type: "SET_USER", payload: { username: user, roles } });
-    } catch (error: any) {
-      console.error("Login failed", error);
-      throw error.response?.data?.message || "Invalid credentials";
-    } finally {
-      setIsLording(false);
-    }
-  };
+  // Enhanced login function
+  const login = useCallback(() => {
+    console.log('🔐 Redirecting to login...');
+    keycloak.login({
+      redirectUri: window.location.origin,
+      prompt: 'login' // Force re-authentication
+    });
+  }, []);
 
-  // Logout function
-  const logout = async () => {
-    setIsLording(true);
+  // Manual token refresh function
+  const refreshToken = useCallback(async (): Promise<boolean> => {
     try {
-      await axiosInstance.post("/auth/signout", {});
-      dispatch({ type: "CLEAR_USER" });
-    } catch (error: any) {
-      console.error("Logout failed", error);
-      throw error.response?.data?.error || "Logout error";
-    } finally {
-      setIsLording(false);
+      console.log('🔄 Manually refreshing token...');
+      const refreshed = await keycloak.updateToken(30);
+      if (refreshed && keycloak.token) {
+        console.log('✅ Token refreshed successfully');
+        setToken(keycloak.token);
+        return true;
+      }
+      console.log('ℹ️ Token still valid, no refresh needed');
+      return true;
+    } catch (error) {
+      console.error('❌ Token refresh failed:', error);
+      logout();
+      return false;
     }
-  };
+  }, [logout]);
 
-  // Signup function
-  const signup = async (
-    username: string,
-    password: string,
-    roles: string[]
-  ) => {
+  // Get user roles function
+  const getUserRoles = useCallback((): string[] => {
     try {
-      await axiosInstance.post("/auth/signup", {
-        username,
-        password,
-        roles,
-      });
-    } catch (error: any) {
-      console.error("Signup failed", error);
-      throw error.response?.data?.message || "Signup error";
+      if (keycloak.realmAccess?.roles) {
+        return keycloak.realmAccess.roles;
+      }
+      
+      if (keycloak.token) {
+        const payload = JSON.parse(atob(keycloak.token.split('.')[1]));
+        return payload.realm_access?.roles || [];
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error getting user roles:', error);
+      return [];
     }
+  }, []);
+
+  // Enhanced role checking functions with debugging
+  const hasRole = useCallback((role: string): boolean => {
+    const hasRoleResult = keycloak.hasRealmRole(role);
+    console.log(`🔍 Checking role "${role}":`, hasRoleResult);
+    console.log('Available roles:', keycloak.realmAccess?.roles || []);
+    return hasRoleResult;
+  }, []);
+
+  const hasAnyRole = useCallback((roles: string[]): boolean => {
+    const result = roles.some(role => keycloak.hasRealmRole(role));
+    console.log(`🔍 Checking any of roles [${roles.join(', ')}]:`, result);
+    console.log('Available roles:', keycloak.realmAccess?.roles || []);
+    return result;
+  }, []);
+
+  useEffect(() => {
+    // Prevent multiple initializations
+    if (isInitialized.current) {
+      return;
+    }
+
+    isInitialized.current = true;
+    console.log('🚀 Initializing Keycloak...');
+    console.log('Keycloak config:', {
+      url: keycloak.authServerUrl,
+      realm: keycloak.realm,
+      clientId: keycloak.clientId
+    });
+
+    const initKeycloak = async () => {
+      try {
+        // Modified initialization to prevent auto-login
+        const authenticated = await keycloak.init({
+          onLoad: 'check-sso',
+          checkLoginIframe: false,
+          pkceMethod: 'S256',
+          // Add this to prevent silent authentication
+          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html'
+        });
+
+        console.log('🔑 Keycloak init result:', authenticated);
+
+        if (authenticated && keycloak.token) {
+          console.log('✅ User is authenticated');
+          console.log('Token info:', {
+            token: keycloak.token?.substring(0, 50) + '...',
+            refreshToken: keycloak.refreshToken?.substring(0, 50) + '...',
+            subject: keycloak.subject,
+            realm: keycloak.realm
+          });
+
+          // CRITICAL: Set token first, then authentication state
+          setToken(keycloak.token);
+          setIsAuthenticated(true);
+          
+          // Load user profile
+          try {
+            const profile = await keycloak.loadUserProfile();
+            setUser(profile);
+            console.log('👤 User profile loaded:', profile);
+            console.log('🎭 User roles:', keycloak.realmAccess?.roles || []);
+          } catch (error) {
+            console.error('❌ Failed to load user profile:', error);
+          }
+
+          // Set up token refresh with better error handling
+          intervalRef.current = setInterval(async () => {
+            try {
+              const refreshed = await keycloak.updateToken(70);
+              if (refreshed && keycloak.token) {
+                console.log('🔄 Token refreshed successfully');
+                setToken(keycloak.token);
+              } else {
+                console.log('✅ Token still valid, no refresh needed');
+              }
+            } catch (error) {
+              console.error('❌ Failed to refresh token:', error);
+              console.log('🔓 Redirecting to login due to token refresh failure');
+              logout();
+            }
+          }, 60000); // Check every minute
+
+        } else {
+          console.log('❌ User is not authenticated');
+          setIsAuthenticated(false);
+          setToken(null);
+        }
+      } catch (error) {
+        console.error('❌ Keycloak initialization failed:', error);
+        setIsAuthenticated(false);
+        setToken(null);
+      } finally {
+        console.log('🏁 Setting loading to false');
+        setLoading(false);
+      }
+    };
+
+    initKeycloak();
+
+    // Cleanup function
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, []); // Empty dependency array - run only once
+
+  // Debug token changes
+  useEffect(() => {
+    if (token) {
+      console.log('🎫 Token updated in context, length:', token.length);
+      
+      // Validate token format
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('🔍 Token payload preview:', {
+          sub: payload.sub,
+          iss: payload.iss,
+          aud: payload.aud,
+          exp: new Date(payload.exp * 1000),
+          realm_access: payload.realm_access,
+        });
+
+        // Check expiration
+        const now = Date.now() / 1000;
+        if (payload.exp <= now) {
+          console.warn('⚠️ Token is expired in context!');
+        }
+      } catch (e) {
+        console.error('❌ Invalid token format in context:', e);
+      }
+    } else {
+      console.log('❌ No token in context');
+    }
+  }, [token]);
+
+  const value: AuthContextType = {
+    isAuthenticated,
+    loading,
+    user,
+    token,
+    login,
+    logout,
+    hasRole,
+    hasAnyRole,
+    refreshToken,
+    getUserRoles
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        authState,
-        login,
-        logout,
-        signup,
-        isLording,
-        setIsLording,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

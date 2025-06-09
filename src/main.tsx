@@ -7,19 +7,31 @@ import { ThemeProvider } from "./components/theme-provider.tsx";
 import { LecturerProvider } from "./contexts/lecturerContext.tsx";
 import { StudentProvider } from "./contexts/studentContext.tsx";
 import { CourseProvider } from "./contexts/courseContext.tsx";
+import { EnrollmentProvider } from "./contexts/enrollmentContext.tsx";
+import { AttendanceProvider } from "./contexts/attendanceContext.tsx";
+import { SessionProvider } from "./contexts/sessionContext.tsx";
+import { AuthProvider } from "./contexts/authContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <DepartmentProvider>
-      <LecturerProvider>
-        <StudentProvider>
-          <CourseProvider>
-            <ThemeProvider>
-              <App />
-            </ThemeProvider>
-          </CourseProvider>
-        </StudentProvider>
-      </LecturerProvider>
-    </DepartmentProvider>
+    <AuthProvider>
+      <DepartmentProvider>
+        <LecturerProvider>
+          <StudentProvider>
+            <CourseProvider>
+              <EnrollmentProvider>
+                <SessionProvider>
+                  <AttendanceProvider>
+                    <ThemeProvider>
+                      <App />
+                    </ThemeProvider>
+                  </AttendanceProvider>
+                </SessionProvider>
+              </EnrollmentProvider>
+            </CourseProvider>
+          </StudentProvider>
+        </LecturerProvider>
+      </DepartmentProvider>
+    </AuthProvider>
   </StrictMode>
 );

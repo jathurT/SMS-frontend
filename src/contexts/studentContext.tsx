@@ -6,7 +6,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import axiosInstance from "@/api/axiosInstance";
+import apiClient from '../utils/apiClient';
 import {
   Student,
   CreateStudent,
@@ -215,7 +215,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_LOADING", payload: true });
       dispatch({ type: "SET_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<Student[]>>(
+      const response = await apiClient.get<ApiResponse<Student[]>>(
         "/students/all"
       );
 
@@ -249,7 +249,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
       try {
         dispatch({ type: "SET_ERROR", payload: null });
 
-        const response = await axiosInstance.get<ApiResponse<Student>>(
+        const response = await apiClient.get<ApiResponse<Student>>(
           `/students/${id}`
         );
         return response.data.body;
@@ -272,7 +272,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_DETAILS_LOADING", payload: true });
         dispatch({ type: "SET_DETAILS_ERROR", payload: null });
 
-        const response = await axiosInstance.get<ApiResponse<StudentDetailsData>>(
+        const response = await apiClient.get<ApiResponse<StudentDetailsData>>(
           `/students/details/${id}`
         );
 
@@ -310,7 +310,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ANALYTICS_LOADING", payload: true });
       dispatch({ type: "SET_ANALYTICS_ERROR", payload: null });
 
-      const response = await axiosInstance.get<ApiResponse<StudentAnalyticsData[]>>(
+      const response = await apiClient.get<ApiResponse<StudentAnalyticsData[]>>(
         "/students/analytics"
       );
 
@@ -344,13 +344,13 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
       try {
         dispatch({ type: "SET_ERROR", payload: null });
 
-        const response = await axiosInstance.get<ApiResponse<Student>>(
+        const response = await apiClient.get<ApiResponse<Student>>(
           `/students/email/${encodeURIComponent(email)}`
         );
-        
+
         const student = response.data.body;
         dispatch({ type: "FETCH_STUDENT_BY_EMAIL", payload: student });
-        
+
         return student;
       } catch (error: any) {
         console.error("Error fetching student by email:", error);
@@ -371,7 +371,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.post<ApiResponse<Student>>(
+        const response = await apiClient.post<ApiResponse<Student>>(
           "/students/add",
           student
         );
@@ -411,7 +411,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_ERROR", payload: null });
         dispatch({ type: "SET_LOADING", payload: true });
 
-        const response = await axiosInstance.put<ApiResponse<Student>>(
+        const response = await apiClient.put<ApiResponse<Student>>(
           `/students/update/${id}`,
           student
         );
@@ -442,7 +442,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_ERROR", payload: null });
       dispatch({ type: "SET_LOADING", payload: true });
 
-      await axiosInstance.delete(`/students/delete/${id}`);
+      await apiClient.delete(`/students/delete/${id}`);
 
       dispatch({ type: "DELETE_STUDENT", payload: id });
     } catch (error: any) {
