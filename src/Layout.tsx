@@ -26,7 +26,6 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/authContext";
 
 // Add CSS for custom scrollbar styling
 const scrollbarStyles = `
@@ -63,8 +62,11 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-<<<<<<< HEAD
-  const { user, logout: keycloakLogout } = useAuth();
+  const { user, logout, getUserRoles } = useAuth();
+
+  // Get user roles and filtered navigation links
+  const userRoles = getUserRoles();
+  const filteredNavLinks = getFilteredNavLinks(userRoles);
 
   // Get display name from user data
   const getDisplayName = () => {
@@ -72,21 +74,7 @@ export default function Layout() {
     if (user.firstName && user.lastName) {
       return `${user.firstName} ${user.lastName}`;
     }
-    return user.username || user.email || "User";
-=======
-  const { user, logout, getUserRoles } = useAuth();
-
-  // Get user roles and filtered navigation links
-  const userRoles = getUserRoles();
-  const filteredNavLinks = getFilteredNavLinks(userRoles);
-
-  // Get current user information
-  const currentUser = {
-    username: user?.firstName && user?.lastName 
-      ? `${user.firstName} ${user.lastName}` 
-      : user?.username || "User",
-    email: user?.email || "user@example.com",
->>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
+    return user.username || "User";
   };
 
   // Get current page title from navigation links
@@ -101,19 +89,12 @@ export default function Layout() {
 
   const handleLogout = async () => {
     try {
-<<<<<<< HEAD
-=======
-      await logout();
->>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account",
       });
-<<<<<<< HEAD
       // Use Keycloak logout which will redirect automatically
-      keycloakLogout();
-=======
->>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
+      logout();
     } catch (error: any) {
       console.log(error);
       toast({
@@ -175,23 +156,10 @@ export default function Layout() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
                   <CircleUser className="h-4 w-4 text-primary" />
                 </div>
-<<<<<<< HEAD
                 <p className="text-sm font-medium text-primary/90 dark:text-primary/80 hover:text-primary transition-colors">
                   {getDisplayName()}
                 </p>
               </button>
-=======
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium text-primary/90 dark:text-primary/80">
-                    {currentUser.username}
-                  </p>
-                  {/* Show user roles */}
-                  <p className="text-xs text-muted-foreground">
-                    {userRoles.length > 0 ? userRoles.join(', ') : 'No roles'}
-                  </p>
-                </div>
-              </div>
->>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
               <Button
                 variant="ghost"
                 size="icon"
@@ -266,22 +234,10 @@ export default function Layout() {
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
                           <CircleUser className="h-4 w-4 text-primary" />
                         </div>
-<<<<<<< HEAD
                         <p className="text-sm font-medium text-primary/90 dark:text-primary/80 hover:text-primary transition-colors">
                           {getDisplayName()}
                         </p>
                       </button>
-=======
-                        <div className="flex flex-col">
-                          <p className="text-sm font-medium text-primary/90 dark:text-primary/80">
-                            {currentUser.username}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {userRoles.length > 0 ? userRoles.join(', ') : 'No roles'}
-                          </p>
-                        </div>
-                      </div>
->>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
                       <Button
                         variant="ghost"
                         size="icon"
@@ -325,7 +281,7 @@ export default function Layout() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div>
-                    <div>{currentUser.username}</div>
+                    <div>{getDisplayName()}</div>
                     <div className="text-xs text-muted-foreground">
                       {userRoles.length > 0 ? userRoles.join(', ') : 'No roles'}
                     </div>
