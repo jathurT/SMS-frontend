@@ -3,21 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { useSessionContext } from "@/contexts/sessionContext";
 import { useDepartmentContext } from "@/contexts/departmentContext";
 import { useCourseContext } from "@/contexts/courseContext";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import SessionForm from "@/components/forms/session-form";
 import Lorder from "@/components/Lorder";
-import { 
-  Building2, 
-  BookOpen, 
+import {
+  Building2,
+  BookOpen,
   ArrowLeft,
   Clock,
   Calendar,
   Hash,
   GraduationCap,
-  Users
+  Users,
+  Plus
 } from "lucide-react";
 import { Department } from "@/types/department";
 import { Course } from "@/types/course";
@@ -29,6 +32,7 @@ export default function SessionPage() {
 
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [isAddSessionOpen, setIsAddSessionOpen] = useState(false);
 
   // Fetch departments on component mount
   useEffect(() => {
@@ -306,6 +310,19 @@ export default function SessionPage() {
 
         <Separator className="mb-6" />
 
+        {/* Add Session Dialog */}
+        <ResponsiveDialog
+          isOpen={isAddSessionOpen}
+          setIsOpen={setIsAddSessionOpen}
+          title="Add Session"
+          className="sm:max-w-screen-md p-20"
+        >
+          <SessionForm
+            setIsOpen={setIsAddSessionOpen}
+            courseId={selectedCourse.courseId}
+          />
+        </ResponsiveDialog>
+
         {/* Sessions Table */}
         <Card>
           <CardHeader>
@@ -314,6 +331,14 @@ export default function SessionPage() {
                 <Clock className="h-5 w-5" />
                 Course Sessions ({sessionState.sessions.length})
               </CardTitle>
+              <Button
+                onClick={() => setIsAddSessionOpen(true)}
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Session
+              </Button>
             </div>
           </CardHeader>
           <CardContent>

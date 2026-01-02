@@ -9,6 +9,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { LecturerSearchableDropdown } from "@/components/ui/lecturer-dropdown";
+import SessionForm from "@/components/forms/session-form";
 import {
   ArrowLeft,
   Mail,
@@ -101,6 +102,7 @@ export default function CourseDetails() {
   const navigate = useNavigate();
   const { state, fetchCourseDetails } = useCourseContext();
   const [isAddLecturerOpen, setIsAddLecturerOpen] = useState(false);
+  const [isSessionDialogOpen, setIsSessionDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -198,6 +200,19 @@ export default function CourseDetails() {
         <AddLecturerForm
           courseId={courseDetails.courseId}
           setIsOpen={setIsAddLecturerOpen}
+        />
+      </ResponsiveDialog>
+
+      {/* Add Session Dialog */}
+      <ResponsiveDialog
+        isOpen={isSessionDialogOpen}
+        setIsOpen={setIsSessionDialogOpen}
+        title="Add Session"
+        className="sm:max-w-screen-md p-20"
+      >
+        <SessionForm
+          setIsOpen={setIsSessionDialogOpen}
+          courseId={courseDetails.courseId}
         />
       </ResponsiveDialog>
 
@@ -440,11 +455,21 @@ export default function CourseDetails() {
 
           {/* Conducted Sessions */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-xl flex items-center gap-2">
-              <Clock className="h-6 w-6" />
-              Conducted Sessions ({courseDetails.conductedSessions?.length || 0}
-              )
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-xl flex items-center gap-2">
+                <Clock className="h-6 w-6" />
+                Conducted Sessions ({courseDetails.conductedSessions?.length || 0}
+                )
+              </h3>
+              <Button
+                onClick={() => setIsSessionDialogOpen(true)}
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Clock className="h-4 w-4" />
+                Add Session
+              </Button>
+            </div>
 
             {courseDetails.conductedSessions &&
             courseDetails.conductedSessions.length > 0 ? (

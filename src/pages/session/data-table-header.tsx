@@ -6,6 +6,12 @@ import { useState } from "react";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import SessionForm from "@/components/forms/session-form";
 import { columnHeadersSession } from "@/constant/index";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DataTableHeaderProps<TData> {
   table: Table<TData>;
@@ -25,6 +31,7 @@ export function DataTableHeader<TData>({
     exportToExcel(
       dataToExport,
       "Sessions",
+      columnHeadersSession,
       columnHeadersSession,
       Array(columnHeadersSession.length).fill(20)
     );
@@ -50,14 +57,27 @@ export function DataTableHeader<TData>({
           <span className="hidden md:block">Export CSV</span>
           <Download className="md:hidden" />
         </Button>
-        <Button 
-          className="btn btn-primary p-o" 
-          onClick={() => setIsOpen(true)}
-          disabled={!courseId}
-        >
-          <span className="hidden md:block">Add Session</span>
-          <Plus className="md:hidden" />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button
+                  className="btn btn-primary p-o"
+                  onClick={() => setIsOpen(true)}
+                  disabled={!courseId}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  <span className="hidden md:block">Add Session</span>
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {!courseId && (
+              <TooltipContent>
+                <p>Please select a course first to add sessions</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );

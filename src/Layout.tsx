@@ -7,6 +7,7 @@ import {
   User,
   HelpCircle,
 } from "lucide-react";
+import { useAuth } from "@/contexts/authContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -61,11 +62,15 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user, logout: keycloakLogout } = useAuth();
 
-  // Static user data - replace with your actual user data or remove if not needed
-  const currentUser = {
-    username: "John Doe",
-    email: "john.doe@example.com",
+  // Get display name from user data
+  const getDisplayName = () => {
+    if (!user) return "Guest";
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return user.username || user.email || "User";
   };
 
   // Show all navigation links since we removed role-based filtering
@@ -83,13 +88,12 @@ export default function Layout() {
 
   const handleLogout = async () => {
     try {
-      // Add your logout logic here if needed
-      // For now, just show success message and navigate
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account",
       });
-      navigate("/login");
+      // Use Keycloak logout which will redirect automatically
+      keycloakLogout();
     } catch (error: any) {
       console.log(error);
       toast({
@@ -138,14 +142,17 @@ export default function Layout() {
           {/* Elegant, minimal user section with application-matching colors */}
           <div className="mt-auto border-t border-border/40">
             <div className="flex items-center justify-between p-4 bg-muted dark:bg-muted/40">
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/profile")}
+                className="flex items-center gap-2 hover:bg-primary/5 rounded-lg p-1 -m-1 transition-colors cursor-pointer"
+              >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
                   <CircleUser className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-sm font-medium text-primary/90 dark:text-primary/80">
-                  {currentUser.username}
+                <p className="text-sm font-medium text-primary/90 dark:text-primary/80 hover:text-primary transition-colors">
+                  {getDisplayName()}
                 </p>
-              </div>
+              </button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -210,14 +217,20 @@ export default function Layout() {
                   {/* Elegant, minimal user section for mobile with application-matching colors */}
                   <div className="mt-auto border-t border-border/40">
                     <div className="flex items-center justify-between p-4 bg-muted dark:bg-muted/40">
-                      <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          navigate("/profile");
+                        }}
+                        className="flex items-center gap-2 hover:bg-primary/5 rounded-lg p-1 -m-1 transition-colors cursor-pointer"
+                      >
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
                           <CircleUser className="h-4 w-4 text-primary" />
                         </div>
-                        <p className="text-sm font-medium text-primary/90 dark:text-primary/80">
-                          {currentUser.username}
+                        <p className="text-sm font-medium text-primary/90 dark:text-primary/80 hover:text-primary transition-colors">
+                          {getDisplayName()}
                         </p>
-                      </div>
+                      </button>
                       <Button
                         variant="ghost"
                         size="icon"

@@ -17,6 +17,7 @@ import AttendancePage from "./pages/attendace/AttendancePage";
 import SessionPage from "./pages/session/SessionPage";
 import SessionDetails from "./pages/session/SessionDetails";
 import DepartmentDetailsPage from "./pages/department/DepartmentDetailsPage ";
+import ProfilePage from "./pages/profile/ProfilePage";
 
 // Role constants (matching your backend)
 const ROLES = {
@@ -63,6 +64,7 @@ export default function App() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="profile" element={<ProfilePage />} />
           
           {/* Admin/Department Admin only routes */}
           <Route path="/department/*" element={
