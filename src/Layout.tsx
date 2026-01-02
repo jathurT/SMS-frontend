@@ -19,13 +19,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/mode-toggle";
-import { navLinks } from "@/constant";
+import { getFilteredNavLinks } from "@/constant";
 import { Outlet } from "react-router-dom";
 import Logo from "@/assets/images/Logo.svg";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster"; // Add this import
+import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/authContext";
 
 // Add CSS for custom scrollbar styling
 const scrollbarStyles = `
@@ -62,6 +63,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+<<<<<<< HEAD
   const { user, logout: keycloakLogout } = useAuth();
 
   // Get display name from user data
@@ -71,14 +73,25 @@ export default function Layout() {
       return `${user.firstName} ${user.lastName}`;
     }
     return user.username || user.email || "User";
-  };
+=======
+  const { user, logout, getUserRoles } = useAuth();
 
-  // Show all navigation links since we removed role-based filtering
-  const filteredNavLinks = navLinks;
+  // Get user roles and filtered navigation links
+  const userRoles = getUserRoles();
+  const filteredNavLinks = getFilteredNavLinks(userRoles);
+
+  // Get current user information
+  const currentUser = {
+    username: user?.firstName && user?.lastName 
+      ? `${user.firstName} ${user.lastName}` 
+      : user?.username || "User",
+    email: user?.email || "user@example.com",
+>>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
+  };
 
   // Get current page title from navigation links
   const currentPage =
-    navLinks.find((link) => link.path === location.pathname)?.title ||
+    filteredNavLinks.find((link) => link.path === location.pathname)?.title ||
     "Dashboard";
 
   // Effect to close mobile menu when route changes
@@ -88,12 +101,19 @@ export default function Layout() {
 
   const handleLogout = async () => {
     try {
+<<<<<<< HEAD
+=======
+      await logout();
+>>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account",
       });
+<<<<<<< HEAD
       // Use Keycloak logout which will redirect automatically
       keycloakLogout();
+=======
+>>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
     } catch (error: any) {
       console.log(error);
       toast({
@@ -103,6 +123,12 @@ export default function Layout() {
       });
     }
   };
+
+  // Debug: Log user roles and filtered nav links
+  useEffect(() => {
+    console.log('Current user roles:', userRoles);
+    console.log('Filtered nav links:', filteredNavLinks.map(link => link.title));
+  }, [userRoles, filteredNavLinks]);
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -139,7 +165,7 @@ export default function Layout() {
             </nav>
           </div>
 
-          {/* Elegant, minimal user section with application-matching colors */}
+          {/* User section with role display */}
           <div className="mt-auto border-t border-border/40">
             <div className="flex items-center justify-between p-4 bg-muted dark:bg-muted/40">
               <button
@@ -149,10 +175,23 @@ export default function Layout() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
                   <CircleUser className="h-4 w-4 text-primary" />
                 </div>
+<<<<<<< HEAD
                 <p className="text-sm font-medium text-primary/90 dark:text-primary/80 hover:text-primary transition-colors">
                   {getDisplayName()}
                 </p>
               </button>
+=======
+                <div className="flex flex-col">
+                  <p className="text-sm font-medium text-primary/90 dark:text-primary/80">
+                    {currentUser.username}
+                  </p>
+                  {/* Show user roles */}
+                  <p className="text-xs text-muted-foreground">
+                    {userRoles.length > 0 ? userRoles.join(', ') : 'No roles'}
+                  </p>
+                </div>
+              </div>
+>>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
               <Button
                 variant="ghost"
                 size="icon"
@@ -214,7 +253,7 @@ export default function Layout() {
                     </nav>
                   </div>
 
-                  {/* Elegant, minimal user section for mobile with application-matching colors */}
+                  {/* Mobile user section with role display */}
                   <div className="mt-auto border-t border-border/40">
                     <div className="flex items-center justify-between p-4 bg-muted dark:bg-muted/40">
                       <button
@@ -227,10 +266,22 @@ export default function Layout() {
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
                           <CircleUser className="h-4 w-4 text-primary" />
                         </div>
+<<<<<<< HEAD
                         <p className="text-sm font-medium text-primary/90 dark:text-primary/80 hover:text-primary transition-colors">
                           {getDisplayName()}
                         </p>
                       </button>
+=======
+                        <div className="flex flex-col">
+                          <p className="text-sm font-medium text-primary/90 dark:text-primary/80">
+                            {currentUser.username}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {userRoles.length > 0 ? userRoles.join(', ') : 'No roles'}
+                          </p>
+                        </div>
+                      </div>
+>>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
                       <Button
                         variant="ghost"
                         size="icon"
@@ -272,7 +323,14 @@ export default function Layout() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  <div>
+                    <div>{currentUser.username}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {userRoles.length > 0 ? userRoles.join(', ') : 'No roles'}
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <User className="mr-2 h-4 w-4" />
@@ -297,7 +355,6 @@ export default function Layout() {
         </header>
 
         {/* Main content area */}
-        {/* Add the scrollbar styles to the document */}
         <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
 
         <main className="flex-1 overflow-auto p-4 lg:p-6 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
@@ -333,7 +390,6 @@ export default function Layout() {
         </main>
       </div>
 
-      {/* Add the Toaster component here - this is crucial for toasts to work */}
       <Toaster />
     </div>
   );

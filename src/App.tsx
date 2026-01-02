@@ -17,7 +17,11 @@ import AttendancePage from "./pages/attendace/AttendancePage";
 import SessionPage from "./pages/session/SessionPage";
 import SessionDetails from "./pages/session/SessionDetails";
 import DepartmentDetailsPage from "./pages/department/DepartmentDetailsPage ";
+<<<<<<< HEAD
 import ProfilePage from "./pages/profile/ProfilePage";
+=======
+import ProfilePage from "./pages/profile";
+>>>>>>> 9d0687b0868e0cc9faebcfb8e8e1a9d33eb44728
 
 // Role constants (matching your backend)
 const ROLES = {
@@ -65,6 +69,13 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<ProfilePage />} />
+          
+          {/* Profile page - accessible to all authenticated users */}
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
           
           {/* Admin/Department Admin only routes */}
           <Route path="/department/*" element={
